@@ -80,7 +80,7 @@ input[type=number]{text-align:right;font-variant-numeric:tabular-nums}
 .item-head{font-size:12px;color:var(--muted);font-weight:600}
 .item-head span:nth-child(n+2){text-align:right}
 .item input{padding:7px 8px;min-height:36px}
-.item .amt[readonly]{background:var(--surface-2);color:var(--muted)}
+
 .x{border:0;background:none;color:var(--muted);cursor:pointer;width:30px;height:36px;border-radius:6px;font-size:18px;line-height:1}
 .x:hover{color:var(--danger);background:var(--surface-2)}
 .charge{display:grid;grid-template-columns:1fr 120px 30px;gap:6px}
@@ -588,12 +588,12 @@ function renderForm(){
         <label class="days"><span class="m">Days</span><input type="number" inputmode="decimal" min="0" step="any" data-k="items.${i}.days" value="${esc(it.days)}" aria-label="Days"></label>
         <label class="qty"><span class="m">Qty</span><input type="number" inputmode="decimal" min="0" step="any" data-k="items.${i}.qty" value="${esc(it.qty)}" aria-label="Quantity"></label>
         <label class="rate"><span class="m">Rate ₹</span><input type="number" inputmode="decimal" min="0" step="any" data-k="items.${i}.rate" value="${esc(it.rate)}" placeholder="Rate" aria-label="Rate"></label>
-        <label class="amt-l"><span class="m">Amount ₹</span><input class="amt" type="number" inputmode="decimal" min="0" step="any" data-k="items.${i}.amt" value="${esc(num(it.rate)?lineAmt(it):it.amt)}" ${num(it.rate)?"readonly":""} placeholder="Amount" aria-label="Amount"></label>
+        <label class="amt-l"><span class="m">Amount ₹</span><input class="amt" type="number" inputmode="decimal" min="0" step="any" data-k="items.${i}.amt" value="${esc(num(it.rate)?lineAmt(it):it.amt)}" placeholder="Amount" aria-label="Amount" title="You can type your own amount"></label>
         <button class="x" data-del-item="${i}" aria-label="Remove ${esc(it.d||"item")}" title="Remove">×</button>
       </div>`).join("")}
     </div>
     <button class="link" id="addItem">+ Add another item</button>
-    <p class="hint">Package price for everything? Leave the rate empty and type the total in Amount.</p>
+    <p class="hint">Prices are editable: change the Rate, or type your own Amount and the rate adjusts to match.</p>
   </div>
   <div class="sec">
     <h3><span class="step">3</span>Extra charges and payment</h3>
@@ -658,7 +658,8 @@ function onInput(e){
   setPath(S.cur,k,v);S.dirty=true;if(e.type==="input")hideDone();
   if(k==="cust.name"){const m=S.customers.find(c=>c.name.toLowerCase()===String(v).trim().toLowerCase());if(m&&e.type==="change"){Object.assign(S.cur.cust,{name:m.name,address:m.address||"",gstin:m.gstin||"",contact:m.contact||"",phone:m.phone||""});if(m.interstate!=null)S.cur.interstate=!!m.interstate;renderForm()}}
   if(k==="date"&&!S.cur.saved){S.cur.serial=nextSerial(S.cur.type,S.cur.date)}
-  if(/^items\.\d+\.(rate|qty|days)$/.test(k)){const i=+k.split(".")[1];const row=$(`.item[data-i="${i}"]`);if(row){const a=$("input.amt",row);const it=S.cur.items[i];if(num(it.rate)){a.value=lineAmt(it);a.readOnly=true}else{a.readOnly=false}}}
+  if(/^items\.\d+\.(rate|qty|days)$/.test(k)){const i=+k.split(".")[1];const row=$(`.item[data-i="${i}"]`);if(row){const a=$("input.amt",row);const it=S.cur.items[i];if(num(it.rate)){a.value=+lineAmt(it).toFixed(2)}}}
+  if(/^items\.\d+\.amt$/.test(k)){const i=+k.split(".")[1];const it=S.cur.items[i];const u=num(it.qty||1)*num(it.days||1)||1;if(num(it.rate)||num(v)){it.rate=num(v)?+(num(v)/u).toFixed(2):"";const r=$(`[data-k="items.${i}.rate"]`);if(r&&document.activeElement!==r)r.value=it.rate}}
   if(k==="interstate"||k==="gstRate"||k==="date"||k==="serial"){const d=$(".docno");if(d)d.textContent=docNo(S.cur)}
   cancelAnimationFrame(rafId);rafId=requestAnimationFrame(()=>{const t=$("#formTotals");if(t)t.innerHTML=totalsHtml(S.cur,calc(S.cur));const st=$("#sumTotal");if(st)st.textContent=inr(calc(S.cur).grand);const sb=$("#saveBill");if(sb&&S.cur.saved&&S.dirty)sb.textContent="Save changes";renderSheet();setSaveState()});
 }
@@ -869,8 +870,8 @@ function showCust(q){const box=$("#cresults");if(!box)return;q=String(q||"").tri
   cList=custPool().filter(c=>(c.name+" "+(c.gstin||"")+" "+(c.phone||"")+" "+(c.contact||"")).toLowerCase().includes(q)).slice(0,6);
   if(cList.length===1&&cList[0].name.toLowerCase()===q){box.classList.remove("on");return}
   cIdx=cList.length?0:-1;
-  box.innerHTML=cList.length?cList.map((c,i)=>`<button class="pr cr ${i===0?"act":""}" data-cfill="${i}"><b>${esc(c.name)}</b><small>${esc([c.gstin,c.phone,(c.address||"").split("\n")[0]].filter(Boolean).join(" · ")||"Saved customer")}</small></button>`).join(""):`<div class="pr-empty">New customer. Fill in the details below and they'll be remembered when you save.</div>`;
-  box.classList.add("on")}
+  box.innerHTML=cList.length?cList.map((c,i)=>`<button class="pr cr ${i===0?"act":""}" data-cfill="${i}"><b>${esc(c.name)}</b><small>${esc([c.gstin,c.phone,(c.address||"").split("\n")[0]].filter(Boolean).join(" · ")||"Saved customer")}</small></button>`).join(""):"";
+  box.classList.toggle("on",cList.length>0)}
 function fillCust(c){Object.assign(S.cur.cust,{name:c.name,address:c.address||"",gstin:c.gstin||"",contact:c.contact||"",phone:c.phone||""});S.cur.interstate=!!c.interstate;S.dirty=true;hideDone();renderForm();renderSheet();toast(c.name+" filled in")}
 document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.k==="cust.name")showCust(e.target.value)});
 document.addEventListener("keydown",e=>{if(!(e.target.dataset&&e.target.dataset.k==="cust.name"))return;const box=$("#cresults");if(!box||!box.classList.contains("on")||!cList.length)return;
