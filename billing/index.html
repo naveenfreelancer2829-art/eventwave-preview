@@ -8,7 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#EEF1F8; --surface:#FFFFFF; --surface-2:#F6F8FC; --ink:#101935; --muted:#5A6588;
@@ -111,7 +112,7 @@ input[type=number]{text-align:right;font-variant-numeric:tabular-nums}
 .stat span{font-size:13px;color:var(--muted)}
 .stat b{display:block;font:700 24px "Barlow Semi Condensed",sans-serif;font-variant-numeric:tabular-nums;margin-top:2px}
 .tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
-table.list{width:100%;border-collapse:collapse;min-width:720px}
+table.list{width:100%;border-collapse:collapse;min-width:960px}
 table.list th,table.list td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
 table.list th{font-size:12px;color:var(--muted);font-weight:600;background:var(--surface-2)}
 table.list td.n,table.list th.n{text-align:right;font-variant-numeric:tabular-nums}
@@ -151,6 +152,12 @@ table.list tbody tr:hover td{background:var(--surface-2)}
 .newp[open]{border-style:solid}
 .pr .mine{font-size:11px;font-weight:600;color:var(--ok);margin-left:6px}
 .plist{display:flex;flex-direction:column;gap:6px}.plist div{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}.plist div span{flex:1}
+.acts{display:flex;gap:6px}
+.mini{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:5px 10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.mini.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,var(--line))}
+.mini.wa{color:#fff;background:#1FA855;border-color:#1FA855}
+.mini.del{color:var(--danger)}
+.btn.wa{background:#1FA855;border-color:#1FA855;color:#fff}
 .ask{margin:0 0 8px;font-weight:600}
 .big-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .big-choice button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;cursor:pointer}
@@ -462,7 +469,7 @@ function blank(type){
   const b={id:uid(),type:type||"invoice",date:today(),eventDate:"",cust:{name:"",address:"",gstin:"",contact:"",phone:""},
     interstate:false,gstRate:num(S.settings.gstRate)||18,
     items:[{d:"",days:1,qty:1,rate:"",amt:""}],charges:[],discount:"",received:"",notes:"",saved:false};
-  b.serial=nextSerial(b.type,b.date);return b;
+  const keep=S.cur;S.cur=null;b.serial=nextSerial(b.type,b.date);S.cur=keep;return b;
 }
 function lineAmt(it){const r=num(it.rate);return r?num(it.qty||1)*num(it.days||1)*r:num(it.amt)}
 function calc(b){
@@ -578,8 +585,8 @@ function renderForm(){
     <div class="sum"><span>Total</span><b id="sumTotal">${inr(c.grand)}</b></div>
     <button class="btn primary" id="saveBill">${b.saved?(S.dirty?"Save changes":"Saved ✓"):"Save bill"}</button>
     <button class="btn" id="pdfBill">Download PDF</button>
+    <button class="btn wa" id="waBill">WhatsApp</button>
     <details class="menu"><summary class="btn" aria-label="More actions">More</summary><div class="menu-list">
-      <button id="waBill">Send on WhatsApp</button>
       <button id="printBill">Print</button>
       ${!isInv&&b.saved?`<button id="toInvoice">Turn into tax invoice</button>`:""}
       ${b.saved?`<button id="dupBill">Make a copy</button>`:""}
@@ -681,9 +688,9 @@ window.addEventListener("resize",fitStage);
 /* ---------- actions ---------- */
 function showDone(b){const d=$("#done");d.innerHTML=`<b>${b.type==="invoice"?"Invoice":"Quotation"} ${esc(docNo(b))} for ${esc(b.cust.name)} is saved.</b><div class="row"><button class="btn primary" data-act="pdfBill">Download PDF</button><button class="btn" data-act="waBill">Send on WhatsApp</button>${b.type==="quote"?`<button class="btn" data-act="toInvoice">Turn into tax invoice</button>`:""}<button class="btn" data-act="newBill">Start a new bill</button></div>`;d.classList.add("on");window.scrollTo({top:0})}
 function hideDone(){const d=$("#done");if(d)d.classList.remove("on")}
-function shareWa(){const b=S.cur,c=calc(b);const ph=String(b.cust.phone||"").replace(/\D/g,"");const to=ph.length===10?"91"+ph:ph;
+function shareWa(bill){const b=bill||S.cur,c=calc(b);const ph=String(b.cust.phone||"").replace(/\D/g,"");const to=ph.length===10?"91"+ph:ph;
   const msg=`Hello${b.cust.contact?" "+b.cust.contact:""},\n\nPlease find our ${b.type==="invoice"?"tax invoice":"quotation"} ${docNo(b)} from ${S.settings.name}.\n${b.eventDate?"Event: "+b.eventDate+"\n":""}Amount: ${inr(c.grand)} (incl. GST)${b.type==="invoice"&&c.recv?"\nBalance due: "+inr(c.bal):""}\n\nBank: ${S.settings.bankName}, A/c ${S.settings.accNo}, IFSC ${S.settings.ifsc}\n\nThank you,\n${S.settings.name}\n${S.settings.phone}`;
-  const a=document.createElement("a");a.href=`https://wa.me/${to}?text=${encodeURIComponent(msg)}`;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();
+  const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);const url=mobile?`https://wa.me/${to}?text=${encodeURIComponent(msg)}`:`https://web.whatsapp.com/send?${to?"phone="+to+"&":""}text=${encodeURIComponent(msg)}`;const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();
   toast("Attach the PDF in WhatsApp after downloading it")}
 
 async function saveCur(){
@@ -703,17 +710,29 @@ async function saveCur(){
 }
 function fileName(b){return`${b.type==="invoice"?"Invoice":"Quotation"}_${String(docNo(b)).replace(/[\/\\]/g,"-")}_${slug(b.cust.name)||"customer"}.pdf`}
 async function downloadPdf(){
-  const b=S.cur;if(!window.html2pdf){toast("PDF tool didn't load. Use Print and pick Save as PDF.");return}
-  const holder=document.createElement("div");holder.style.cssText="position:fixed;left:-10000px;top:0";holder.innerHTML=sheetHtml(b);document.body.appendChild(holder);
-  const el=holder.firstElementChild;el.style.border="0";
+  const b=S.cur;if(!window.html2canvas||!window.jspdf){toast("PDF tool didn't load. Use Print and pick Save as PDF.");return}
+  toast("Making PDF…");
+  const sx=window.scrollX,sy=window.scrollY;
+  const holder=document.createElement("div");
+  holder.style.cssText="position:absolute;left:0;top:0;width:794px;z-index:-1;pointer-events:none;background:#fff";
+  holder.innerHTML=sheetHtml(b);document.body.appendChild(holder);
+  const el=holder.firstElementChild;el.style.border="0";el.style.margin="0";
   try{
+    window.scrollTo(0,0);
     await document.fonts?.ready;
-    const blob=await html2pdf().set({margin:0,filename:fileName(b),image:{type:"jpeg",quality:0.96},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"px",format:[794,1123],orientation:"portrait",hotfixes:["px_scaling"]}}).from(el).outputPdf("blob");
+    await Promise.all([...el.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:"#ffffff",scrollX:0,scrollY:0,x:0,y:0,width:794,windowWidth:794,windowHeight:el.offsetHeight});
+    const pdf=new window.jspdf.jsPDF({unit:"px",format:[794,1123],orientation:"portrait",hotfixes:["px_scaling"]});
+    let w=794,hh=canvas.height*794/canvas.width;if(hh>1123){w=w*1123/hh;hh=1123}
+    pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",(794-w)/2,0,w,hh);
+    const blob=pdf.output("blob");
+    window.scrollTo(sx,sy);
     let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
     if(dl){try{await dl.save({filename:fileName(b),data:blob});toast("PDF saved")}catch(e){if(e&&e.code!=="declined")toast("Couldn't save the PDF here. Use Print and pick Save as PDF.")}}
-    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fileName(b);document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
+    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fileName(b);document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast("PDF downloaded")}
   }catch(e){toast("Couldn't make the PDF. Use Print and pick Save as PDF.")}
-  finally{holder.remove()}
+  finally{holder.remove();window.scrollTo(sx,sy)}
 }
 function printCur(){$("#printRoot").innerHTML=sheetHtml(S.cur);try{window.print()}catch(e){toast("Printing is blocked here. Use Download PDF.")}}
 function openBill(b){hideDone();S.cur=JSON.parse(JSON.stringify(b));S.dirty=false;go("new");renderForm();renderSheet();setSaveState()}
@@ -791,6 +810,17 @@ async function saveNewProduct(addToo){
 document.addEventListener("click",e=>{const f=e.target.closest("#np_from");if(f){e.stopPropagation();const v=$("#pq").value.trim();$("#presults").classList.remove("on");const d=$("#newp");d.open=true;$("#np_n").value=v;$("#np_lo").focus();return}},true);
 document.addEventListener("click",e=>{const b=e.target.closest("#np_save,#np_only");if(!b)return;e.stopPropagation();saveNewProduct(b.id==="np_save")},true);
 document.addEventListener("click",async e=>{const d=e.target.closest("[data-delprod]");if(!d)return;e.stopPropagation();const n=d.dataset.delprod;if(!confirm("Remove "+n+" from your products?"))return;S.settings={...S.settings,products:(S.settings.products||[]).filter(p=>p.n!==n)};await store.saveSettings(S.settings);renderSettings();renderForm();toast(n+" removed")},true);
+
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("[data-paid],[data-unpaid],[data-delbill],[data-wa]");if(!t)return;
+  e.stopPropagation();e.preventDefault();
+  const id=t.dataset.paid||t.dataset.unpaid||t.dataset.delbill||t.dataset.wa;const b0=S.bills.find(x=>x.id===id);if(!b0)return;
+  const b=JSON.parse(JSON.stringify(b0));
+  if(t.dataset.wa){shareWa(b);return}
+  if(t.dataset.delbill){if(!confirm(`Delete ${docNo(b)} for ${b.cust.name}? This can't be undone.`))return;await store.delBill(id);toast("Bill deleted");if(S.cur&&S.cur.id===id){S.cur=blank(S.cur.type);S.dirty=false;renderForm();renderSheet()}return}
+  b.received=t.dataset.paid?calc(b).grand:"";b.updatedAt=Date.now();
+  try{await store.saveBill(b);toast(t.dataset.paid?`${docNo(b)} marked paid`:`${docNo(b)} marked unpaid`);if(S.cur&&S.cur.id===id){S.cur.received=b.received;renderForm();renderSheet()}}catch(_){toast("Couldn't update. Try again.")}
+},true);
 /* ---------- lists ---------- */
 function go(v){$$(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));$$("nav button").forEach(b=>b.dataset.nav===v?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));if(v==="new")requestAnimationFrame(fitStage);if(v!=="new")renderLists();window.scrollTo(0,0)}
 function renderLists(){
@@ -803,7 +833,7 @@ function renderLists(){
   const fyNow=fy(today());const yr=inv.filter(b=>fy(b.date)===fyNow).reduce((s,b)=>s+calc(b).grand,0);
   const openQ=S.bills.filter(b=>b.type==="quote"&&!S.bills.some(x=>x.fromQuote===docNo(b))).length;
   $("#stats").innerHTML=`<div class="stat"><span>Billed this month</span><b>${inr(month)}</b></div><div class="stat"><span>Billed in FY ${fyNow}</span><b>${inr(yr)}</b></div><div class="stat"><span>Payments due</span><b>${inr(due)}</b></div><div class="stat"><span>Quotations not invoiced</span><b>${openQ}</b></div>`;
-  $("#billsTbl").innerHTML=list.length?`<table class="list"><thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Customer</th><th>Event</th><th class="n">Total</th><th class="n">Balance</th><th>Payment</th></tr></thead><tbody>${list.map(b=>{const c=calc(b),p=payState(b);return`<tr data-open="${esc(b.id)}" tabindex="0"><td><b>${esc(docNo(b))}</b></td><td><span class="tag ${b.type==="invoice"?"inv":"q"}">${b.type==="invoice"?"Invoice":"Quote"}</span></td><td>${esc(fmtDate(b.date))}</td><td>${esc(b.cust.name)}</td><td>${esc(b.eventDate)}</td><td class="n">${inr(c.grand)}</td><td class="n">${b.type==="invoice"?inr(c.bal):""}</td><td>${p?`<span class="tag ${p}">${{paid:"Paid",part:"Part paid",due:"Unpaid"}[p]}</span>`:""}</td></tr>`}).join("")}</tbody></table>`:`<div class="empty">${S.bills.length?"No bills match this search.":"No bills yet. Your saved quotations and invoices will be listed here.<br><button class=\"btn primary\" data-nav=\"new\">Make your first bill</button>"}</div>`;
+  $("#billsTbl").innerHTML=list.length?`<table class="list"><thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Customer</th><th>Event</th><th class="n">Total</th><th class="n">Balance</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${list.map(b=>{const c=calc(b),p=payState(b);return`<tr data-open="${esc(b.id)}" tabindex="0"><td><b>${esc(docNo(b))}</b></td><td><span class="tag ${b.type==="invoice"?"inv":"q"}">${b.type==="invoice"?"Invoice":"Quote"}</span></td><td>${esc(fmtDate(b.date))}</td><td>${esc(b.cust.name)}</td><td>${esc(b.eventDate)}</td><td class="n">${inr(c.grand)}</td><td class="n">${b.type==="invoice"?inr(c.bal):""}</td><td>${p?`<span class="tag ${p}">${{paid:"Paid",part:"Part paid",due:"Unpaid"}[p]}</span>`:""}</td><td class="acts">${b.type==="invoice"?(p==="paid"?`<button class="mini" data-unpaid="${esc(b.id)}">Mark unpaid</button>`:`<button class="mini ok" data-paid="${esc(b.id)}">Mark paid</button>`):""}<button class="mini wa" data-wa="${esc(b.id)}" title="Send on WhatsApp">WhatsApp</button><button class="mini del" data-delbill="${esc(b.id)}">Delete</button></td></tr>`}).join("")}</tbody></table>`:`<div class="empty">${S.bills.length?"No bills match this search.":"No bills yet. Your saved quotations and invoices will be listed here.<br><button class=\"btn primary\" data-nav=\"new\">Make your first bill</button>"}</div>`;
   const cq=($("#cq")?.value||"").toLowerCase();
   const custs=S.customers.filter(c=>!cq||c.name.toLowerCase().includes(cq)).sort((a,b)=>a.name.localeCompare(b.name));
   $("#custTbl").innerHTML=custs.length?`<table class="list"><thead><tr><th>Customer</th><th>GSTIN</th><th>Phone</th><th class="n">Bills</th><th class="n">Invoiced</th><th class="n">Due</th></tr></thead><tbody>${custs.map(c=>{const bs=S.bills.filter(b=>slug(b.cust.name)===c.id);const iv=bs.filter(b=>b.type==="invoice");return`<tr data-cust="${esc(c.id)}" tabindex="0" title="Start a new invoice for ${esc(c.name)}"><td><b>${esc(c.name)}</b></td><td>${esc(c.gstin)}</td><td>${esc(c.phone)}</td><td class="n">${bs.length}</td><td class="n">${inr(iv.reduce((s,b)=>s+calc(b).grand,0))}</td><td class="n">${inr(iv.reduce((s,b)=>s+calc(b).bal,0))}</td></tr>`}).join("")}</tbody></table>`:`<div class="empty">Customers are saved automatically the first time you save a bill for them.</div>`;
