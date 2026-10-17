@@ -159,7 +159,8 @@ table.list tbody tr:hover td{background:var(--surface-2)}
 .mini.del{color:var(--danger)}
 .btn.wa{background:#1FA855;border-color:#1FA855;color:#fff}
 .csearch{position:relative}
-.csearch .presults{top:calc(100% + 2px)}
+.csearch .presults{top:calc(100% + 2px);min-width:min(340px,86vw)}
+.csearch .presults[data-for="cust.gstin"]{left:auto;right:0}
 .cr b{font-weight:600}.cr small{color:var(--muted)}
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .rcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
@@ -533,7 +534,7 @@ function renderForm(){
   const recent=custPool().sort((x,y)=>{const lx=Math.max(0,...S.bills.filter(q=>slug(q.cust.name)===x.id).map(q=>q.updatedAt||0));const ly=Math.max(0,...S.bills.filter(q=>slug(q.cust.name)===y.id).map(q=>q.updatedAt||0));return ly-lx}).slice(0,6);
   const used=new Set(b.items.map(it=>String(it.d).toLowerCase()));
   const quick=itemSuggestions().filter(s=>!used.has(s.toLowerCase())&&!/^transport/i.test(s)).slice(0,10);
-  const moreOpen=!!(b.cust.contact||b.cust.phone||b.interstate);
+  const moreOpen=!!(b.cust.contact||b.interstate);
   $("#form").innerHTML=`
   <div class="sec">
     <p class="ask">What are you making?</p>
@@ -552,14 +553,14 @@ function renderForm(){
     <h3><span class="step">1</span>Who is it for?</h3>
     ${recent.length?`<p class="hint" style="margin:-4px 0 6px">Recent customers, tap to fill:</p><div class="chips" aria-label="Recent customers">${recent.map(cu=>`<button class="chip" data-pick-cust="${esc(cu.id)}">${esc(cu.name)}</button>`).join("")}</div>`:""}
     <div class="grid2">
-      <div class="full csearch">${field("Customer or company name","cust.name",b.cust.name,{ph:recent.length?"Start typing a saved company, or a new name":"e.g. Nokia Solutions"})}<div class="presults" id="cresults" role="listbox"></div></div>
+      <div class="full csearch">${field("Customer or company name","cust.name",b.cust.name,{ph:recent.length?"Start typing a saved company, or a new name":"e.g. Nokia Solutions"})}<div class="presults" id="cresults" data-for="cust.name" role="listbox"></div></div>
       ${field("Address","cust.address",b.cust.address,{type:"textarea",cls:"full",ph:"Street, area, city"})}
-      ${field("Customer GSTIN (if they have one)","cust.gstin",b.cust.gstin,{cls:"full",ph:"15 characters, e.g. 29AACCN3871F1ZC"})}
+      <div class="csearch">${field("Phone number","cust.phone",b.cust.phone,{type:"tel",ph:"Type to find a saved customer"})}<div class="presults" data-for="cust.phone"></div></div>
+      <div class="csearch">${field("GST number","cust.gstin",b.cust.gstin,{ph:"Type to find a saved customer"})}<div class="presults" data-for="cust.gstin"></div></div>
     </div>
     <details class="more" ${moreOpen?"open":""}><summary>More customer details</summary>
       <div class="grid2" style="margin-top:10px">
         ${field("Contact person","cust.contact",b.cust.contact)}
-        ${field("Phone","cust.phone",b.cust.phone,{type:"tel"})}
       </div>
       <label class="check"><input type="checkbox" data-k="interstate" ${b.interstate?"checked":""}> Customer is outside ${esc(S.settings.state||"the state")} (uses IGST)</label>
     </details>
@@ -864,21 +865,28 @@ document.addEventListener("click",async e=>{
 /* ---------- customer autofill ---------- */
 function custPool(){const m=new Map();S.customers.forEach(c=>m.set(c.id,c));
   [...S.bills].sort((a,b)=>(a.updatedAt||0)-(b.updatedAt||0)).forEach(b=>{if(!b.cust||!b.cust.name)return;const id=slug(b.cust.name);if(!m.has(id))m.set(id,{id,...b.cust,interstate:!!b.interstate})});return[...m.values()]}
-let cList=[],cIdx=-1;
-function showCust(q){const box=$("#cresults");if(!box)return;q=String(q||"").trim().toLowerCase();
-  if(!q){box.classList.remove("on");return}
-  cList=custPool().filter(c=>(c.name+" "+(c.gstin||"")+" "+(c.phone||"")+" "+(c.contact||"")).toLowerCase().includes(q)).slice(0,6);
-  if(cList.length===1&&cList[0].name.toLowerCase()===q){box.classList.remove("on");return}
-  cIdx=cList.length?0:-1;
-  box.innerHTML=cList.length?cList.map((c,i)=>`<button class="pr cr ${i===0?"act":""}" data-cfill="${i}"><b>${esc(c.name)}</b><small>${esc([c.gstin,c.phone,(c.address||"").split("\n")[0]].filter(Boolean).join(" · ")||"Saved customer")}</small></button>`).join(""):"";
-  box.classList.toggle("on",cList.length>0)}
-function fillCust(c){Object.assign(S.cur.cust,{name:c.name,address:c.address||"",gstin:c.gstin||"",contact:c.contact||"",phone:c.phone||""});S.cur.interstate=!!c.interstate;S.dirty=true;hideDone();renderForm();renderSheet();toast(c.name+" filled in")}
-document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.k==="cust.name")showCust(e.target.value)});
-document.addEventListener("keydown",e=>{if(!(e.target.dataset&&e.target.dataset.k==="cust.name"))return;const box=$("#cresults");if(!box||!box.classList.contains("on")||!cList.length)return;
+let cList=[],cIdx=-1,cBox=null;
+const CK=["cust.name","cust.phone","cust.gstin"];
+function boxFor(k){return document.querySelector(`.presults[data-for="${k}"]`)}
+function hideCust(){document.querySelectorAll(".csearch .presults").forEach(b=>b.classList.remove("on"))}
+function showCust(q,k){hideCust();const box=boxFor(k);if(!box)return;cBox=box;q=String(q||"").trim().toLowerCase();
+  const digits=q.replace(/\D/g,"");
+  if(k==="cust.phone"&&digits.length<3)return;if(k!=="cust.phone"&&q.length<2)return;
+  cList=custPool().filter(c=>{if(k==="cust.phone")return String(c.phone||"").replace(/\D/g,"").includes(digits);if(k==="cust.gstin")return String(c.gstin||"").toLowerCase().includes(q);return(c.name+" "+(c.gstin||"")+" "+(c.phone||"")+" "+(c.contact||"")).toLowerCase().includes(q)}).slice(0,6);
+  const cur=S.cur.cust;if(cList.length===1&&cList[0].name===cur.name&&(cList[0].gstin||"")===(cur.gstin||"")&&(cList[0].phone||"")===(cur.phone||""))return;
+  if(!cList.length)return;cIdx=0;
+  box.innerHTML=cList.map((c,i)=>`<button class="pr cr ${i===0?"act":""}" data-cfill="${i}"><b>${esc(c.name)}</b><small>${esc([c.phone?"☎ "+c.phone:"",c.gstin?"GST "+c.gstin:"",(c.address||"").split("\n")[0]].filter(Boolean).join(" · ")||"Saved customer")}</small></button>`).join("");
+  box.classList.add("on")}
+function fillCust(c){Object.assign(S.cur.cust,{name:c.name,address:c.address||"",gstin:c.gstin||"",contact:c.contact||"",phone:c.phone||""});S.cur.interstate=!!c.interstate;S.dirty=true;hideDone();hideCust();renderForm();renderSheet();toast(c.name+" filled in")}
+document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.k;if(CK.includes(k))showCust(e.target.value,k)});
+document.addEventListener("keydown",e=>{const k=e.target.dataset&&e.target.dataset.k;if(!CK.includes(k))return;const box=boxFor(k);if(!box||!box.classList.contains("on")||!cList.length)return;
   if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();cIdx=(cIdx+(e.key==="ArrowDown"?1:-1)+cList.length)%cList.length;$$(".cr",box).forEach((b,i)=>b.classList.toggle("act",i===cIdx))}
-  else if(e.key==="Enter"){e.preventDefault();fillCust(cList[cIdx])}else if(e.key==="Escape")box.classList.remove("on")});
-document.addEventListener("mousedown",e=>{const f=e.target.closest("[data-cfill]");if(f){e.preventDefault();fillCust(cList[+f.dataset.cfill]);return}if(!e.target.closest(".csearch")){const b=$("#cresults");if(b)b.classList.remove("on")}},true);
-
+  else if(e.key==="Enter"){e.preventDefault();fillCust(cList[cIdx])}else if(e.key==="Escape")hideCust()});
+document.addEventListener("mousedown",e=>{const f=e.target.closest("[data-cfill]");if(f){e.preventDefault();fillCust(cList[+f.dataset.cfill]);return}if(!e.target.closest(".csearch"))hideCust()},true);
+// GSTIN: auto-detect out-of-state customer
+document.addEventListener("change",e=>{if(!(e.target.dataset&&e.target.dataset.k==="cust.gstin")||!S.cur)return;const g=e.target.value.trim().toUpperCase();if(g!==e.target.value){e.target.value=g;S.cur.cust.gstin=g}
+  if(/^\d{2}[A-Z0-9]{13}$/.test(g)){const home=String(S.settings.gstin||"29").slice(0,2);const inter=g.slice(0,2)!==home;if(inter!==!!S.cur.interstate){S.cur.interstate=inter;renderForm();renderSheet();toast(inter?"Out-of-state GSTIN: IGST applied":"Same-state GSTIN: CGST + SGST applied")}}
+  else if(g)toast("GST number should be 15 characters, e.g. 29AACCN3871F1ZC")});
 /* ---------- reports ---------- */
 const kfmt=n=>n>=1e7?(n/1e7).toFixed(1).replace(/\.0$/,"")+"Cr":n>=1e5?(n/1e5).toFixed(1).replace(/\.0$/,"")+"L":n>=1e3?(n/1e3).toFixed(1).replace(/\.0$/,"")+"K":String(Math.round(n));
 function hbars(rows,fmt){if(!rows.length)return`<div class="rempty">No data for this period yet.</div>`;const mx=Math.max(...rows.map(r=>r[1]))||1;
