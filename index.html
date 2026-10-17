@@ -471,6 +471,14 @@ footer .credit:hover b{text-decoration:underline;text-underline-offset:3px}
 .card .badge{z-index:1}
 .qi img{flex:none}
 .nego{display:flex;gap:10px;align-items:flex-start;background:#FFF6DB;border:1px solid #F3D57A;color:#5A4300;border-radius:12px;padding:10px 12px;font-size:14px}.nego svg{width:18px;height:18px;flex:none;margin-top:2px}.nego b{color:#3D2E00}
+
+/* hero promo video */
+.promo{position:relative;border-radius:18px;overflow:hidden;background:#0B1238;border:1px solid var(--line);box-shadow:0 40px 80px -36px rgba(31,43,143,.45);aspect-ratio:16/9}
+.promo video{display:block;width:100%;height:100%;object-fit:cover}
+.promo-sound{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:9px 14px;background:rgba(10,15,46,.72);color:#fff;font:600 13px var(--f-body);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.promo-sound svg{width:18px;height:18px}
+.promo-sound .w{display:none}
+.promo-sound.on .w{display:inline}.promo-sound.on .x{display:none}
 </style>
 </head>
 <body>
@@ -518,11 +526,10 @@ footer .credit:hover b{text-decoration:underline;text-underline-offset:3px}
         <div><b>All sizes</b><span>Events &amp; budgets</span></div>
       </div>
     </div>
-    <div class="rig" aria-hidden="true">
-      <div class="rig-bar"><span class="live"><i></i>Live</span><span>FOH · Desk A</span><span class="sp">CH 01–16</span></div>
-      <img src="img/hero.webp" alt="Digital audio mixing console at a live event set up by Event Wave, Bengaluru" fetchpriority="high">
-      <span class="rig-tag">SIGNAL OK · 48 kHz</span>
-      <div class="rig-meter" id="meter"></div>
+    <div class="promo">
+      <video id="promo" src="video/eventwave-promo.mp4" poster="img/promo-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Event Wave promo video"></video>
+      <button class="promo-sound" id="promoSound" type="button" aria-label="Turn sound on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path class="x" d="M22 9l-6 6M16 9l6 6"/><path class="w" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span>Sound on</span></button>
     </div>
   </div>
   <canvas id="wave" aria-hidden="true"></canvas>
@@ -750,6 +757,11 @@ footer .credit:hover b{text-decoration:underline;text-underline-offset:3px}
   <a class="cd-call" href="tel:+918550011040" aria-label="Call 85500 11040"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></a>
 </div>
 <script>
+(()=>{const v=document.getElementById('promo'),b=document.getElementById('promoSound');if(!v||!b)return;
+ b.onclick=()=>{v.muted=!v.muted;if(!v.muted){v.volume=1;v.play().catch(()=>{})}b.classList.toggle('on',!v.muted);b.querySelector('span').textContent=v.muted?'Sound on':'Sound off';b.setAttribute('aria-label',v.muted?'Turn sound on':'Turn sound off')};
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){v.removeAttribute('autoplay');v.pause()}})();
+</script>
+<script>
 (()=>{
   const pop=document.getElementById('pop'),scrim=document.getElementById('popScrim');
   let last=null;
@@ -956,8 +968,8 @@ $('#enq').addEventListener('input',enqUpdate);$('#enq').addEventListener('submit
 $('#menuBtn').onclick=()=>{const n=$('#nav');const o=n.classList.toggle('open');$('#menuBtn').setAttribute('aria-expanded',o)};
 $('#nav').addEventListener('click',e=>{if(e.target.closest('a')){$('#nav').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false')}});
 
-/* VU meter */
-(()=>{const m=$('#meter');let h='';for(let k=0;k<28;k++){const d=(0.5+Math.random()*0.9).toFixed(2),dl=(-Math.random()).toFixed(2);h+=`<span style="animation-duration:${d}s;animation-delay:${dl}s"></span>`}m.innerHTML=h})();
+/* VU meter (removed) */
+(()=>{const m=$('#meter');if(!m)return;let h='';for(let k=0;k<28;k++){const d=(0.5+Math.random()*0.9).toFixed(2),dl=(-Math.random()).toFixed(2);h+=`<span style="animation-duration:${d}s;animation-delay:${dl}s"></span>`}m.innerHTML=h})();
 
 /* waveform: the pulse from the logo, travelling across the hero */
 (()=>{
