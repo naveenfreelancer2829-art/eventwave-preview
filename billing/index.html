@@ -158,6 +158,28 @@ table.list tbody tr:hover td{background:var(--surface-2)}
 .mini.wa{color:#fff;background:#1FA855;border-color:#1FA855}
 .mini.del{color:var(--danger)}
 .btn.wa{background:#1FA855;border-color:#1FA855;color:#fff}
+.csearch{position:relative}
+.csearch .presults{top:calc(100% + 2px)}
+.cr b{font-weight:600}.cr small{color:var(--muted)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.rcard.wide{grid-column:1/-1}
+.rcard h3{margin:0;font:700 17px "Barlow Semi Condensed",sans-serif}
+.rcard .note{margin:2px 0 14px}
+.hb{display:grid;grid-template-columns:minmax(0,38%) 1fr auto;gap:8px 10px;align-items:center;font-size:14px}
+.hb .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .t{display:block;height:14px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.hb .f{display:block;height:100%;background:var(--signal);border-radius:4px}
+.hb .v{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;white-space:nowrap}
+.vb{display:flex;align-items:flex-end;gap:6px;height:200px;padding-top:18px;border-bottom:1px solid var(--line)}
+.vb .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.vb .b{width:100%;max-width:42px;background:var(--navy);border-radius:4px 4px 0 0;min-height:1px;position:relative}
+:root[data-theme="dark"] .vb .b{background:var(--signal)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vb .b{background:var(--signal)}}
+.vb .b span{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap;padding-bottom:2px}
+.vlab{display:flex;gap:6px;margin-top:6px}.vlab span{flex:1;text-align:center;font-size:11px;color:var(--muted);min-width:0;overflow:hidden}
+.rempty{color:var(--muted);padding:20px 0;text-align:center}
+@media (max-width:760px){.rgrid{grid-template-columns:1fr}.vb .b span{display:none}}
 .ask{margin:0 0 8px;font-weight:600}
 .big-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .big-choice button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;cursor:pointer}
@@ -285,6 +307,7 @@ input,select,textarea{font-size:16px}
     <nav aria-label="Sections">
       <button data-nav="new" aria-current="page">New bill</button>
       <button data-nav="bills">All bills</button>
+      <button data-nav="reports">Reports</button>
       <button data-nav="customers">Customers</button>
       <button data-nav="settings">Settings</button>
     </nav>
@@ -318,6 +341,21 @@ input,select,textarea{font-size:16px}
       <button class="btn" id="exportCsv">Export CSV</button>
     </div>
     <div class="tbl-wrap" id="billsTbl"></div>
+  </section>
+
+  <section class="view" id="v-reports">
+    <div class="toolbar">
+      <select id="rPeriod" aria-label="Period"><option value="month">This month</option><option value="fy" selected>This financial year</option><option value="all">All time</option></select>
+      <select id="rType" aria-label="Bills to count"><option value="invoice">Tax invoices only</option><option value="all">Invoices + quotations</option></select>
+    </div>
+    <div class="stats" id="rStats"></div>
+    <div class="rgrid">
+      <div class="rcard"><h3>Most rented equipment</h3><p class="note">Units × days rented</p><div id="rRented"></div></div>
+      <div class="rcard"><h3>Top earning equipment</h3><p class="note">Amount billed, before GST</p><div id="rEarn"></div></div>
+      <div class="rcard wide"><h3>Monthly billing</h3><p class="note">Total billed per month, last 12 months</p><div id="rMonthly"></div></div>
+      <div class="rcard"><h3>By category</h3><p class="note">Amount billed, before GST</p><div id="rCat"></div></div>
+      <div class="rcard"><h3>Top customers</h3><p class="note">Total billed incl. GST</p><div id="rCust"></div></div>
+    </div>
   </section>
 
   <section class="view" id="v-customers">
@@ -492,7 +530,7 @@ function field(label,key,val,opt={}){
 }
 function renderForm(){
   const b=S.cur;if(!b)return;const c=calc(b);const isInv=b.type==="invoice";
-  const recent=[...S.customers].sort((x,y)=>{const lx=Math.max(0,...S.bills.filter(q=>slug(q.cust.name)===x.id).map(q=>q.updatedAt||0));const ly=Math.max(0,...S.bills.filter(q=>slug(q.cust.name)===y.id).map(q=>q.updatedAt||0));return ly-lx}).slice(0,6);
+  const recent=custPool().sort((x,y)=>{const lx=Math.max(0,...S.bills.filter(q=>slug(q.cust.name)===x.id).map(q=>q.updatedAt||0));const ly=Math.max(0,...S.bills.filter(q=>slug(q.cust.name)===y.id).map(q=>q.updatedAt||0));return ly-lx}).slice(0,6);
   const used=new Set(b.items.map(it=>String(it.d).toLowerCase()));
   const quick=itemSuggestions().filter(s=>!used.has(s.toLowerCase())&&!/^transport/i.test(s)).slice(0,10);
   const moreOpen=!!(b.cust.contact||b.cust.phone||b.interstate);
@@ -512,9 +550,9 @@ function renderForm(){
   </div>
   <div class="sec">
     <h3><span class="step">1</span>Who is it for?</h3>
-    ${recent.length?`<div class="chips" aria-label="Recent customers">${recent.map(cu=>`<button class="chip" data-pick-cust="${esc(cu.id)}">${esc(cu.name)}</button>`).join("")}</div>`:""}
+    ${recent.length?`<p class="hint" style="margin:-4px 0 6px">Recent customers, tap to fill:</p><div class="chips" aria-label="Recent customers">${recent.map(cu=>`<button class="chip" data-pick-cust="${esc(cu.id)}">${esc(cu.name)}</button>`).join("")}</div>`:""}
     <div class="grid2">
-      ${field("Customer or company name","cust.name",b.cust.name,{list:"custList",cls:"full",ph:recent.length?"Tap a name above or type a new one":"e.g. Nokia Solutions"})}
+      <div class="full csearch">${field("Customer or company name","cust.name",b.cust.name,{ph:recent.length?"Start typing a saved company, or a new name":"e.g. Nokia Solutions"})}<div class="presults" id="cresults" role="listbox"></div></div>
       ${field("Address","cust.address",b.cust.address,{type:"textarea",cls:"full",ph:"Street, area, city"})}
       ${field("Customer GSTIN (if they have one)","cust.gstin",b.cust.gstin,{cls:"full",ph:"15 characters, e.g. 29AACCN3871F1ZC"})}
     </div>
@@ -747,7 +785,7 @@ document.addEventListener("click",async e=>{
   if(t.dataset.act){const id=t.dataset.act;hideDone();return handleAct(id)}
   if(t.dataset.quickItem){const v=t.dataset.quickItem;const empty=S.cur.items.findIndex(it=>!it.d&&!num(it.rate)&&!num(it.amt));const row={d:v,days:S.cur.items.find(x=>x.d)?.days||1,qty:1,rate:"",amt:""};if(empty>=0)S.cur.items[empty]=row;else S.cur.items.push(row);S.dirty=true;hideDone();renderForm();renderSheet();const i=empty>=0?empty:S.cur.items.length-1;$(`[data-k="items.${i}.qty"]`)?.focus();return}
   if(t.dataset.quickChg){S.cur.charges.push({label:t.dataset.quickChg,amt:""});S.dirty=true;renderForm();renderSheet();$$(".charge input[type=number]").at(-1)?.focus();return}
-  if(t.dataset.pickCust){const c=S.customers.find(x=>x.id===t.dataset.pickCust);if(c){Object.assign(S.cur.cust,{name:c.name,address:c.address||"",gstin:c.gstin||"",contact:c.contact||"",phone:c.phone||""});S.cur.interstate=!!c.interstate;S.dirty=true;renderForm();renderSheet();toast(c.name+" filled in")}return}
+  if(t.dataset.pickCust){const c=custPool().find(x=>x.id===t.dataset.pickCust);if(c){Object.assign(S.cur.cust,{name:c.name,address:c.address||"",gstin:c.gstin||"",contact:c.contact||"",phone:c.phone||""});S.cur.interstate=!!c.interstate;S.dirty=true;renderForm();renderSheet();toast(c.name+" filled in")}return}
   if(t.dataset.show){$("#editor").dataset.show=t.dataset.show;$$(".mobile-switch button").forEach(x=>x.setAttribute("aria-pressed",x===t));if(t.dataset.show==="preview")fitStage();return}
   if(t.dataset.type){if(S.cur.type!==t.dataset.type){S.cur.type=t.dataset.type;if(!S.cur.saved)S.cur.serial=nextSerial(S.cur.type,S.cur.date);renderForm();renderSheet()}return}
   if(t.dataset.delItem!=null){S.cur.items.splice(+t.dataset.delItem,1);if(!S.cur.items.length)S.cur.items.push({d:"",days:1,qty:1,rate:"",amt:""});S.dirty=true;renderForm();renderSheet();return}
@@ -821,9 +859,51 @@ document.addEventListener("click",async e=>{
   b.received=t.dataset.paid?calc(b).grand:"";b.updatedAt=Date.now();
   try{await store.saveBill(b);toast(t.dataset.paid?`${docNo(b)} marked paid`:`${docNo(b)} marked unpaid`);if(S.cur&&S.cur.id===id){S.cur.received=b.received;renderForm();renderSheet()}}catch(_){toast("Couldn't update. Try again.")}
 },true);
+
+/* ---------- customer autofill ---------- */
+function custPool(){const m=new Map();S.customers.forEach(c=>m.set(c.id,c));
+  [...S.bills].sort((a,b)=>(a.updatedAt||0)-(b.updatedAt||0)).forEach(b=>{if(!b.cust||!b.cust.name)return;const id=slug(b.cust.name);if(!m.has(id))m.set(id,{id,...b.cust,interstate:!!b.interstate})});return[...m.values()]}
+let cList=[],cIdx=-1;
+function showCust(q){const box=$("#cresults");if(!box)return;q=String(q||"").trim().toLowerCase();
+  if(!q){box.classList.remove("on");return}
+  cList=custPool().filter(c=>(c.name+" "+(c.gstin||"")+" "+(c.phone||"")+" "+(c.contact||"")).toLowerCase().includes(q)).slice(0,6);
+  if(cList.length===1&&cList[0].name.toLowerCase()===q){box.classList.remove("on");return}
+  cIdx=cList.length?0:-1;
+  box.innerHTML=cList.length?cList.map((c,i)=>`<button class="pr cr ${i===0?"act":""}" data-cfill="${i}"><b>${esc(c.name)}</b><small>${esc([c.gstin,c.phone,(c.address||"").split("\n")[0]].filter(Boolean).join(" · ")||"Saved customer")}</small></button>`).join(""):`<div class="pr-empty">New customer. Fill in the details below and they'll be remembered when you save.</div>`;
+  box.classList.add("on")}
+function fillCust(c){Object.assign(S.cur.cust,{name:c.name,address:c.address||"",gstin:c.gstin||"",contact:c.contact||"",phone:c.phone||""});S.cur.interstate=!!c.interstate;S.dirty=true;hideDone();renderForm();renderSheet();toast(c.name+" filled in")}
+document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.k==="cust.name")showCust(e.target.value)});
+document.addEventListener("keydown",e=>{if(!(e.target.dataset&&e.target.dataset.k==="cust.name"))return;const box=$("#cresults");if(!box||!box.classList.contains("on")||!cList.length)return;
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();cIdx=(cIdx+(e.key==="ArrowDown"?1:-1)+cList.length)%cList.length;$$(".cr",box).forEach((b,i)=>b.classList.toggle("act",i===cIdx))}
+  else if(e.key==="Enter"){e.preventDefault();fillCust(cList[cIdx])}else if(e.key==="Escape")box.classList.remove("on")});
+document.addEventListener("mousedown",e=>{const f=e.target.closest("[data-cfill]");if(f){e.preventDefault();fillCust(cList[+f.dataset.cfill]);return}if(!e.target.closest(".csearch")){const b=$("#cresults");if(b)b.classList.remove("on")}},true);
+
+/* ---------- reports ---------- */
+const kfmt=n=>n>=1e7?(n/1e7).toFixed(1).replace(/\.0$/,"")+"Cr":n>=1e5?(n/1e5).toFixed(1).replace(/\.0$/,"")+"L":n>=1e3?(n/1e3).toFixed(1).replace(/\.0$/,"")+"K":String(Math.round(n));
+function hbars(rows,fmt){if(!rows.length)return`<div class="rempty">No data for this period yet.</div>`;const mx=Math.max(...rows.map(r=>r[1]))||1;
+  return`<div class="hb">${rows.map(([l,v])=>`<span class="l" title="${esc(l)}">${esc(l)}</span><span class="t"><span class="f" style="width:${Math.max(2,v/mx*100)}%"></span></span><span class="v">${fmt(v)}</span>`).join("")}</div>`}
+function catOf(name){const p=allProducts().find(x=>x.n===name);return p?p.c:"Other"}
+function renderReports(){
+  const per=$("#rPeriod").value,typ=$("#rType").value,t=today(),m=t.slice(0,7),f=fy(t);
+  const bills=S.bills.filter(b=>(typ==="all"||b.type==="invoice")&&(per==="all"||(per==="month"?(b.date||"").startsWith(m):fy(b.date)===f)));
+  const rent=new Map(),earn=new Map(),cat=new Map(),cust=new Map();let total=0;
+  bills.forEach(b=>{const c=calc(b);total+=c.grand;cust.set(b.cust.name,(cust.get(b.cust.name)||0)+c.grand);
+    b.items.forEach(it=>{if(!it.d)return;const u=num(it.qty||1)*num(it.days||1),a=lineAmt(it);rent.set(it.d,(rent.get(it.d)||0)+u);earn.set(it.d,(earn.get(it.d)||0)+a);const k=catOf(it.d);cat.set(k,(cat.get(k)||0)+a)})});
+  const top=(mp,n=8)=>[...mp.entries()].filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,n);
+  const tr=top(rent,1)[0];
+  $("#rStats").innerHTML=`<div class="stat"><span>Total billed</span><b>${inr(total)}</b></div><div class="stat"><span>Bills</span><b>${bills.length}</b></div><div class="stat"><span>Average bill</span><b>${inr(bills.length?total/bills.length:0)}</b></div><div class="stat"><span>Most rented</span><b style="font-size:18px">${tr?esc(tr[0]):"—"}</b></div>`;
+  $("#rRented").innerHTML=hbars(top(rent),v=>v.toLocaleString("en-IN"));
+  $("#rEarn").innerHTML=hbars(top(earn),v=>"₹"+kfmt(v));
+  $("#rCat").innerHTML=hbars(top(cat,12),v=>"₹"+kfmt(v));
+  $("#rCust").innerHTML=hbars(top(cust),v=>"₹"+kfmt(v));
+  const months=[];const d=new Date(t+"T00:00:00");d.setDate(1);for(let i=11;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);months.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0"))}
+  const mv=months.map(mm=>S.bills.filter(b=>(typ==="all"||b.type==="invoice")&&(b.date||"").startsWith(mm)).reduce((s,b)=>s+calc(b).grand,0));const mx=Math.max(...mv)||1;
+  $("#rMonthly").innerHTML=mv.some(v=>v)?`<div class="vb">${mv.map((v,i)=>`<div class="c"><div class="b" style="height:${v/mx*100}%" title="${months[i]}: ${inr(v)}">${v?`<span>₹${kfmt(v)}</span>`:""}</div></div>`).join("")}</div><div class="vlab">${months.map(mm=>`<span>${new Date(mm+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short"})}</span>`).join("")}</div>`:`<div class="rempty">No bills in the last 12 months yet.</div>`;
+}
+["rPeriod","rType"].forEach(id=>document.getElementById(id).addEventListener("change",renderReports));
 /* ---------- lists ---------- */
-function go(v){$$(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));$$("nav button").forEach(b=>b.dataset.nav===v?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));if(v==="new")requestAnimationFrame(fitStage);if(v!=="new")renderLists();window.scrollTo(0,0)}
-function renderLists(){
+function go(v){$$(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));$$("nav button").forEach(b=>b.dataset.nav===v?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));if(v==="new")requestAnimationFrame(fitStage);if(v!=="new")renderLists();if(v==="reports")renderReports();window.scrollTo(0,0)}
+function renderLists(){if($("#v-reports")?.classList.contains("on"))renderReports();
   const q=($("#q")?.value||"").toLowerCase(),ft=$("#fType")?.value,fs=$("#fStatus")?.value;
   const bills=[...S.bills].sort((a,b)=>(b.date||"").localeCompare(a.date||"")||num(b.serial)-num(a.serial));
   const list=bills.filter(b=>(!ft||b.type===ft)&&(!fs||payState(b)===fs)&&(!q||(b.cust.name+" "+docNo(b)).toLowerCase().includes(q)));
