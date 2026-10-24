@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Om Shree Narayan — Yoga & Fitness Studio, Bangalore</title>
+<meta name="description" content="Yoga, fitness training, therapeutic yoga, meditation, pranayama, wellness and diet guidance in Bangalore. Studio, home and online sessions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --ink:#141a17; --ink-2:#4a524e; --line:#e6e2d9;
+  --forest:#1d3a30; --sage:#c9d6c4; --sage-2:#e8eee4; --clay:#d9774a; --sand:#efe8db;
+  --r:24px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1240px,100% - 32px);margin-inline:auto}
+.serif{font-family:'Fraunces',serif;font-weight:400;letter-spacing:-.02em}
+.label{display:inline-flex;align-items:center;gap:8px;font-size:.75rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.label::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--clay)}
+section{padding:120px 0}
+h2.title{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.05;letter-spacing:-.03em;margin:16px 0 0}
+h2.title em{font-style:italic;color:var(--clay)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:100px;font-weight:500;font-size:.95rem;transition:all .3s ease}
+.btn .arr{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.18);transition:transform .3s}
+.btn:hover .arr{transform:rotate(-45deg)}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:var(--forest)}
+.btn-light{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-light .arr{background:var(--sand)}
+.btn-light:hover{border-color:var(--ink)}
+
+/* NAV */
+.nav{position:fixed;top:16px;left:0;right:0;z-index:50}
+.nav-in{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,.06);border-radius:100px;padding:10px 10px 10px 22px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:.95rem;letter-spacing:.02em}
+.brand-mk{width:34px;height:34px;border-radius:50%;background:var(--forest);color:#fff;display:grid;place-items:center;font-size:1.1rem}
+.brand small{display:block;font-weight:400;font-size:.68rem;color:var(--ink-2);letter-spacing:.1em;text-transform:uppercase}
+.links{display:flex;gap:4px;list-style:none}
+.links a{padding:9px 16px;border-radius:100px;font-size:.9rem;color:var(--ink-2);transition:.2s}
+.links a:hover{background:var(--sand);color:var(--ink)}
+.nav .btn{padding:11px 20px;font-size:.88rem}
+.menu-btn{display:none;width:42px;height:42px;border-radius:50%;border:0;background:var(--ink);color:#fff;font-size:1.1rem;cursor:pointer}
+
+/* HERO */
+.hero{padding:150px 0 60px}
+.hero-top{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;align-items:end}
+.hero h1{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(3rem,8.5vw,7.5rem);line-height:.95;letter-spacing:-.045em}
+.hero h1 em{font-style:italic;color:var(--clay);font-weight:300}
+.hero-side p{color:var(--ink-2);font-size:1.08rem;margin-bottom:28px;max-width:420px}
+.hero-side .row{display:flex;gap:10px;flex-wrap:wrap}
+.hero-bento{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:240px 200px;gap:14px;margin-top:60px}
+.tile{border-radius:var(--r);padding:26px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.t1{grid-row:span 2;background:var(--forest);color:#fff}
+.t1 .orb{position:absolute;right:-60px;bottom:-60px;width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#e9a27c,var(--clay) 45%,#7a3b1f);opacity:.95;animation:float 8s ease-in-out infinite}
+.t1 .ring{position:absolute;right:-110px;bottom:-110px;width:440px;height:440px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+.t1 .ring.r2{width:540px;height:540px;right:-160px;bottom:-160px;border-color:rgba(255,255,255,.1)}
+@keyframes float{50%{transform:translate(-10px,-14px)}}
+.t1 h3{font-family:'Fraunces',serif;font-weight:300;font-size:2.2rem;line-height:1.1;position:relative;max-width:260px}
+.t1 .pill{position:relative;align-self:flex-start;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);padding:8px 14px;border-radius:100px;font-size:.8rem}
+.t2{background:var(--sage)}
+.t3{background:var(--surface);border:1px solid var(--line)}
+.t4{background:var(--sand)}
+.t5{background:var(--ink);color:#fff}
+.tile .big{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:300;line-height:1}
+.tile .sm{font-size:.88rem;opacity:.75}
+.tile .ic{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.6);display:grid;place-items:center;font-size:1.3rem}
+.t5 .ic{background:rgba(255,255,255,.1)}
+
+/* MARQUEE */
+.marquee{border-block:1px solid var(--line);padding:22px 0;overflow:hidden;white-space:nowrap}
+.mq{display:inline-flex;gap:48px;animation:mq 35s linear infinite;font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;color:var(--ink-2)}
+.mq span::after{content:"✳";margin-left:48px;color:var(--clay);font-size:1rem;vertical-align:middle}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ABOUT */
+.about{display:grid;grid-template-columns:1fr 1.3fr;gap:80px}
+.about p.lead{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(1.5rem,2.6vw,2.2rem);line-height:1.35;letter-spacing:-.01em}
+.about p.lead em{color:var(--clay)}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:50px;border-top:1px solid var(--line)}
+.about-stats div{padding:24px 0}
+.about-stats strong{font-family:'Fraunces',serif;font-weight:400;font-size:2.4rem;display:block}
+.about-stats span{font-size:.85rem;color:var(--ink-2)}
+
+/* SERVICES accordion */
+.svc-head{display:flex;justify-content:space-between;align-items:end;gap:30px;flex-wrap:wrap;margin-bottom:50px}
+.svc-head p{max-width:380px;color:var(--ink-2)}
+.acc{border-top:1px solid var(--ink)}
+.item{border-bottom:1px solid var(--line)}
+.item-h{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:20px;padding:30px 0;cursor:pointer;width:100%;background:none;border:0;text-align:left;font:inherit;color:inherit}
+.item-h .no{font-size:.85rem;color:var(--ink-2)}
+.item-h h3{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(1.5rem,3vw,2.4rem);letter-spacing:-.02em;transition:.3s}
+.item-h:hover h3{color:var(--clay);transform:translateX(6px)}
+.plus{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:.35s;font-size:1.3rem}
+.item.open .plus{background:var(--ink);color:#fff;transform:rotate(45deg);border-color:var(--ink)}
+.item-b{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s ease}
+.item.open .item-b{grid-template-rows:1fr}
+.item-b > div{overflow:hidden}
+.item-in{padding:0 0 36px 90px;display:grid;grid-template-columns:1fr 2fr;gap:40px}
+.item-in .desc{color:var(--ink-2);font-size:.95rem}
+.item-in .desc small{display:block;margin-top:14px;padding:12px 14px;background:var(--sand);border-radius:12px;font-size:.78rem;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.chips span{padding:8px 14px;border-radius:100px;background:var(--surface);border:1px solid var(--line);font-size:.86rem;transition:.2s}
+.chips span:hover{background:var(--forest);color:#fff;border-color:var(--forest)}
+
+/* FORMATS */
+.formats{background:var(--forest);color:#fff;border-radius:40px;margin:0 16px}
+.formats .label{color:rgba(255,255,255,.7)}
+.formats h2.title em{color:#f0a57f}
+.fmt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:60px}
+.fmt{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:30px 26px;transition:.35s;display:flex;flex-direction:column;min-height:360px}
+.fmt:hover{background:#fff;color:var(--ink);transform:translateY(-6px)}
+.fmt:hover .fmt-ul li{color:var(--ink-2);border-color:var(--line)}
+.fmt .n{font-size:.8rem;opacity:.6;margin-bottom:auto}
+.fmt h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.9rem;margin:40px 0 10px}
+.fmt p{font-size:.88rem;opacity:.75;margin-bottom:18px}
+.fmt-ul{list-style:none;font-size:.85rem}
+.fmt-ul li{padding:8px 0;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85)}
+
+/* APPROACH */
+.flow{display:grid;grid-template-columns:repeat(7,1fr);margin-top:60px;position:relative}
+.flow::before{content:"";position:absolute;top:22px;left:4%;right:4%;height:1px;background:var(--line)}
+.f{position:relative;padding-right:14px}
+.f .dot{width:44px;height:44px;border-radius:50%;background:var(--bg);border:1px solid var(--ink);display:grid;place-items:center;font-size:.8rem;font-weight:500;margin-bottom:22px;transition:.3s}
+.f:hover .dot{background:var(--clay);border-color:var(--clay);color:#fff}
+.f h4{font-family:'Fraunces',serif;font-weight:400;font-size:1.25rem;margin-bottom:6px}
+.f p{font-size:.82rem;color:var(--ink-2);line-height:1.5}
+
+/* WHO / COMMIT */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:44px}
+.card.alt{background:var(--sage-2);border-color:transparent}
+.card h3{font-family:'Fraunces',serif;font-weight:400;font-size:2rem;letter-spacing:-.02em;margin:14px 0 10px}
+.card > p{color:var(--ink-2);font-size:.9rem;margin-bottom:26px}
+.ticks{list-style:none}
+.ticks li{display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--line);font-size:.94rem}
+.card.alt .ticks li{border-color:rgba(0,0,0,.08)}
+.ticks li::before{content:"";flex-shrink:0;width:18px;height:18px;margin-top:3px;border-radius:50%;
+  background:var(--forest) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/11px no-repeat}
+.quote{text-align:center;max-width:900px;margin:100px auto 0;font-family:'Fraunces',serif;font-weight:300;font-size:clamp(1.6rem,3.4vw,2.8rem);line-height:1.25;letter-spacing:-.02em}
+.quote em{color:var(--clay)}
+
+/* CTA */
+.cta{background:var(--clay);color:#fff;border-radius:40px;padding:90px 50px;text-align:center;position:relative;overflow:hidden}
+.cta::before,.cta::after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
+.cta::before{width:500px;height:500px;left:-200px;top:-200px}
+.cta::after{width:600px;height:600px;right:-250px;bottom:-300px}
+.cta h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(2.4rem,6vw,5rem);line-height:1;letter-spacing:-.04em;position:relative}
+.cta p{opacity:.9;margin:20px 0 36px;position:relative}
+.cta .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+.cta .btn-dark{background:#fff;color:var(--ink)}
+.cta .btn-dark .arr{background:var(--sand)}
+.cta .btn-ghost{border:1px solid rgba(255,255,255,.5);color:#fff}
+.cta .btn-ghost:hover{background:rgba(255,255,255,.12)}
+
+/* FOOTER */
+footer{padding:80px 0 30px}
+.foot{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;padding-bottom:50px;border-bottom:1px solid var(--line)}
+.foot h5{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:18px;font-weight:500}
+.foot ul{list-style:none;display:grid;gap:10px}
+.foot a:hover{color:var(--clay)}
+.foot .big{font-family:'Fraunces',serif;font-weight:300;font-size:2rem;line-height:1.15;max-width:380px;margin-top:18px}
+.bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:24px;font-size:.82rem;color:var(--ink-2)}
+.mega{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(3rem,13vw,12rem);letter-spacing:-.05em;line-height:.9;text-align:center;margin-top:60px;color:var(--forest);opacity:.95}
+
+.wa{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;align-items:center;gap:10px;background:#1f2a24;color:#fff;padding:10px 18px 10px 10px;border-radius:100px;box-shadow:0 12px 30px rgba(0,0,0,.2);font-size:.88rem;font-weight:500;transition:.3s}
+.wa:hover{transform:translateY(-3px)}
+.wa i{width:36px;height:36px;border-radius:50%;background:#25d366;display:grid;place-items:center}
+.wa svg{width:20px;height:20px;fill:#fff}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s ease}
+.rv.in{opacity:1;transform:none}
+
+@media(max-width:1024px){
+  .fmt-grid{grid-template-columns:repeat(2,1fr)}
+  .flow{grid-template-columns:repeat(4,1fr);row-gap:40px}
+  .flow::before{display:none}
+}
+@media(max-width:860px){
+  section{padding:80px 0}
+  .links,.nav .btn{display:none}
+  .menu-btn{display:block}
+  .links.open{display:flex;flex-direction:column;position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border-radius:24px;padding:14px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+  .nav-in{position:relative}
+  .hero-top,.about,.duo,.foot{grid-template-columns:1fr}
+  .about{gap:30px}
+  .hero-bento{grid-template-columns:1fr 1fr;grid-template-rows:300px 180px 180px}
+  .t1{grid-column:span 2;grid-row:auto}
+  .item-in{grid-template-columns:1fr;padding-left:0;gap:20px}
+  .item-h{grid-template-columns:40px 1fr auto}
+  .card{padding:30px 24px}
+  .cta{padding:70px 24px;border-radius:28px}
+  .formats{border-radius:28px;margin:0 8px}
+}
+@media(max-width:560px){
+  .fmt-grid{grid-template-columns:1fr}
+  .fmt{min-height:auto}
+  .flow{grid-template-columns:1fr 1fr}
+  .about-stats strong{font-size:1.8rem}
+  .wa span{display:none}
+  .wa{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a href="#top" class="brand"><span class="brand-mk">ॐ</span><span>Om Shree Narayan<small>Yoga & Fitness</small></span></a>
+    <ul class="links" id="links">
+      <li><a href="#about">Studio</a></li>
+      <li><a href="#services">Programs</a></li>
+      <li><a href="#formats">Sessions</a></li>
+      <li><a href="#approach">Approach</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a class="btn btn-dark" href="https://wa.me/917253952256?text=Hi%2C%20I%27d%20like%20to%20book%20a%20session." target="_blank">Book a session <span class="arr">→</span></a>
+    <button class="menu-btn" id="menu" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-top">
+      <h1 class="rv">Move well.<br>Breathe <em>deeper.</em><br>Live better.</h1>
+      <div class="hero-side rv">
+        <span class="label">Yoga & Fitness Studio · Bangalore</span>
+        <p style="margin-top:16px">Personalized yoga, fitness training, therapeutic yoga, meditation, pranayama and diet guidance, shaped around your goals and your body.</p>
+        <div class="row">
+          <a class="btn btn-dark" href="https://wa.me/917253952256?text=Hi%2C%20I%27d%20like%20to%20book%20a%20session." target="_blank">Book your session <span class="arr">→</span></a>
+          <a class="btn btn-light" href="#services">Explore programs <span class="arr">↓</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-bento">
+      <div class="tile t1 rv">
+        <div class="ring"></div><div class="ring r2"></div><div class="orb"></div>
+        <span class="pill">✳ Fit body · Calm mind</span>
+        <h3>Strength, flexibility and inner peace in one practice.</h3>
+      </div>
+      <div class="tile t2 rv"><div class="ic">🧘</div><div><div class="big">16+</div><div class="sm">Yoga styles, from Hatha to Power Yoga</div></div></div>
+      <div class="tile t3 rv"><div class="ic" style="background:var(--sand)">🏠</div><div><div class="big">Home</div><div class="sm">Private sessions at your doorstep</div></div></div>
+      <div class="tile t4 rv"><div class="ic">💻</div><div><div class="big">Online</div><div class="sm">Live sessions across India</div></div></div>
+      <div class="tile t5 rv"><div class="ic">🌿</div><div><div class="big">Therapy</div><div class="sm">Pain-relief & posture support</div></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="mq">
+    <span>Fit Body</span><span>Calm Mind</span><span>Better Health</span><span>Positive Energy</span><span>Inner Peace</span><span>Pranayama</span><span>Meditation</span>
+    <span>Fit Body</span><span>Calm Mind</span><span>Better Health</span><span>Positive Energy</span><span>Inner Peace</span><span>Pranayama</span><span>Meditation</span>
+  </div>
+</div>
+
+<section id="about">
+  <div class="wrap about">
+    <div class="rv"><span class="label">About the studio</span></div>
+    <div class="rv">
+      <p class="lead">Om Shree Narayan supports <em>physical fitness, mental well-being</em> and healthy lifestyle habits, through yoga, training, meditation and diet guidance adapted to <em>your</em> goals, experience and comfort.</p>
+      <div class="about-stats">
+        <div><strong>4</strong><span>Ways to train</span></div>
+        <div><strong>7</strong><span>Program areas</span></div>
+        <div><strong>10+</strong><span>Ages welcome</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services" style="padding-top:0">
+  <div class="wrap">
+    <div class="svc-head rv">
+      <div><span class="label">Programs</span><h2 class="title">Everything your body<br>& mind <em>needs.</em></h2></div>
+      <p>Seven program areas, each tailored to your fitness level. Tap one to see what's included.</p>
+    </div>
+
+    <div class="acc">
+      <div class="item open">
+        <button class="item-h"><span class="no">01</span><h3>Yoga Sessions</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">From gentle beginner stretching to advanced, dynamic practice, with focus on alignment, balance and mobility.</p>
+          <div class="chips"><span>Basic Yoga for Beginners</span><span>Light Yoga & Gentle Stretching</span><span>Advanced Practice</span><span>Hatha Yoga</span><span>Vinyasa Flow</span><span>Power Yoga</span><span>Strength & Power Yoga</span><span>Flexibility & Flow</span><span>Core Strength Yoga</span><span>Dynamic Yoga</span><span>Balance & Coordination</span><span>Functional Yoga</span><span>Asana & Alignment</span><span>Full-Body Stretching</span><span>Posture Correction</span><span>Mobility & Flexibility</span></div>
+        </div></div></div>
+      </div>
+      <div class="item">
+        <button class="item-h"><span class="no">02</span><h3>Fitness & Body Transformation</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">Training plans customized to your abilities and goals.<small>Results vary from person to person.</small></p>
+          <div class="chips"><span>Weight-Loss & Fat Reduction</span><span>Strength & Power Training</span><span>Muscle-Growth Support</span><span>Core & Abdominal Conditioning</span><span>Body Toning</span><span>Metabolism-Supporting Programs</span><span>Flexibility & Mobility</span><span>Balance & Coordination</span><span>Functional Fitness</span><span>Beginner & Advanced</span><span>Warm-Up & Cool-Down</span><span>Zumba & Dance Fitness</span><span>Aerobic Fitness</span><span>Gymnastic Yoga</span><span>Stretching & Posture</span></div>
+        </div></div></div>
+      </div>
+      <div class="item">
+        <button class="item-h"><span class="no">03</span><h3>Meditation & Mental Wellness</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">Practices to calm the mind, manage stress and build focus.</p>
+          <div class="chips"><span>Basic & Light Meditation</span><span>Mindfulness</span><span>Tratak Meditation</span><span>Guided Relaxation</span><span>Stress Management</span><span>Concentration & Focus</span><span>Deep Relaxation</span><span>Breathing Awareness</span><span>Mind-Body Relaxation</span></div>
+        </div></div></div>
+      </div>
+      <div class="item">
+        <button class="item-h"><span class="no">04</span><h3>Pranayama & Breathwork</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">Techniques selected according to your health, experience and comfort level.</p>
+          <div class="chips"><span>Anulom Vilom</span><span>Nadi Shodhana</span><span>Bhramari</span><span>Kapalabhati</span><span>Surya Bhedana</span><span>Deep & Diaphragmatic Breathing</span><span>Breath-Control & Relaxation</span></div>
+        </div></div></div>
+      </div>
+      <div class="item">
+        <button class="item-h"><span class="no">05</span><h3>Therapeutic Yoga & Pain Relief</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">Sessions adapted to individual comfort and physical ability.<small>These programs complement appropriate medical care and do not replace diagnosis or treatment by a qualified healthcare professional.</small></p>
+          <div class="chips"><span>Back-Pain Relief Support</span><span>Neck & Cervical Support</span><span>Shoulder Mobility</span><span>Lower-Back Mobility</span><span>Sciatica-Related Support</span><span>Knee Mobility & Strength</span><span>Joint Mobility</span><span>Muscle Recovery</span><span>Therapeutic Stretching</span><span>Posture Correction</span><span>Spine Mobility</span><span>Muscle-Tension Management</span><span>Rehabilitation Support</span></div>
+        </div></div></div>
+      </div>
+      <div class="item">
+        <button class="item-h"><span class="no">06</span><h3>Massage & Wellness Therapies</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">Selected services are also available at your home.<small>Home services depend on location, suitability and appointment availability. Specialized therapies are provided according to individual suitability and are not a replacement for medical treatment.</small></p>
+          <div class="chips"><span>Relaxation Massage</span><span>Swedish Massage</span><span>Deep-Tissue Massage</span><span>Hot-Stone Massage</span><span>Thai Massage</span><span>Therapeutic Stretching</span><span>Muscle-Recovery Support</span><span>Back, Neck & Shoulder</span><span>Posture & Mobility</span><span>Stress-Relief Sessions</span><span>Cupping & Traditional Therapies*</span></div>
+        </div></div></div>
+      </div>
+      <div class="item">
+        <button class="item-h"><span class="no">07</span><h3>Diet & Nutrition Guidance</h3><span class="plus">+</span></button>
+        <div class="item-b"><div><div class="item-in">
+          <p class="desc">Guidance tailored to your goals, preferences and routine.<small>Medical nutrition therapy and condition-specific diets should be managed by a qualified nutrition professional.</small></p>
+          <div class="chips"><span>Weight Management</span><span>Healthy Eating Habits</span><span>Fitness Meal Planning</span><span>Muscle-Growth & Weight-Loss Nutrition</span><span>Hydration Guidance</span><span>Balanced-Diet Awareness</span><span>Daily Meal Routine</span><span>Healthy Lifestyle</span></div>
+        </div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="formats" id="formats">
+  <div class="wrap">
+    <span class="label">Ways to train</span>
+    <h2 class="title">Your practice, <em>your way.</em></h2>
+    <div class="fmt-grid">
+      <div class="fmt rv"><span class="n">01 / Personal</span><h3>One-to-One</h3><p>Planned around your goals, level and availability.</p>
+        <ul class="fmt-ul"><li>Personal Yoga & Fitness</li><li>Private Weight-Loss</li><li>Meditation & Pranayama</li><li>Routine Planning</li></ul></div>
+      <div class="fmt rv"><span class="n">02 / At home</span><h3>Home Visits</h3><p>Professional training at your doorstep, subject to location and confirmation.</p>
+        <ul class="fmt-ul"><li>Personal Yoga Training</li><li>Weight-Loss Programs</li><li>Therapeutic Support</li><li>Wellness & Relaxation</li></ul></div>
+      <div class="fmt rv"><span class="n">03 / Online</span><h3>Live Online</h3><p>Guided sessions across India with flexible scheduling.</p>
+        <ul class="fmt-ul"><li>Live Personal Yoga</li><li>Online Group Yoga</li><li>Power Yoga & Core</li><li>Diet & Lifestyle Tips</li></ul></div>
+      <div class="fmt rv"><span class="n">04 / Together</span><h3>Group Classes</h3><p>High-energy classes to move and grow with others.</p>
+        <ul class="fmt-ul"><li>Basic & Advanced Yoga</li><li>Vinyasa & Power Yoga</li><li>Zumba & Aerobics</li><li>Mobility & Stretching</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="approach">
+  <div class="wrap">
+    <span class="label">Session approach</span>
+    <h2 class="title rv">A complete session,<br><em>start to finish.</em></h2>
+    <div class="flow">
+      <div class="f rv"><div class="dot">01</div><h4>Opening</h4><p>Calm breathing & mental preparation</p></div>
+      <div class="f rv"><div class="dot">02</div><h4>Warm-Up</h4><p>Gentle movement & joint prep</p></div>
+      <div class="f rv"><div class="dot">03</div><h4>Main Practice</h4><p>Asanas, strength or flow training</p></div>
+      <div class="f rv"><div class="dot">04</div><h4>Mobility</h4><p>Targeted stretching</p></div>
+      <div class="f rv"><div class="dot">05</div><h4>Pranayama</h4><p>Breathing techniques</p></div>
+      <div class="f rv"><div class="dot">06</div><h4>Meditation</h4><p>Relaxation & focus</p></div>
+      <div class="f rv"><div class="dot">07</div><h4>Cool-Down</h4><p>Recovery guidance</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="duo">
+      <div class="card rv">
+        <span class="label">Who can join</span>
+        <h3>Open to every level</h3>
+        <p>Children, older adults, pregnant individuals and people with existing medical conditions may need specialized modifications and appropriate professional guidance.</p>
+        <ul class="ticks">
+          <li>Beginners, intermediate & advanced practitioners</li>
+          <li>Children aged 10+, with suitable supervision</li>
+          <li>Working professionals & adults</li>
+          <li>Anyone focused on weight management & flexibility</li>
+          <li>People seeking mobility, relaxation & stress relief</li>
+          <li>Fitness enthusiasts wanting personalized support</li>
+        </ul>
+      </div>
+      <div class="card alt rv">
+        <span class="label">Our commitment</span>
+        <h3>Wellness that lasts</h3>
+        <p>Building strength, better movement and sustainable habits.</p>
+        <ul class="ticks">
+          <li>Personalized, goal-oriented attention</li>
+          <li>Consistent practice & progressive exercise</li>
+          <li>Better strength, flexibility, posture & mobility</li>
+          <li>Mind-body balance</li>
+          <li>Healthy habits & individual fitness planning</li>
+          <li>Long-term health & well-being</li>
+        </ul>
+      </div>
+    </div>
+    <p class="quote rv">Fitness isn't about appearance. It's about <em>strength,</em> better movement, a balanced mind and <em>habits that last.</em></p>
+  </div>
+</section>
+
+<section id="contact" style="padding-top:0">
+  <div class="wrap">
+    <div class="cta rv">
+      <h2>Begin your practice<br>today.</h2>
+      <p>Studio · Group · Home · Online — book a personal yoga & fitness session.</p>
+      <div class="row">
+        <a class="btn btn-dark" href="https://wa.me/917253952256?text=Hi%2C%20I%27d%20like%20to%20book%20a%20session." target="_blank">WhatsApp to book <span class="arr">→</span></a>
+        <a class="btn btn-ghost" href="tel:+917253952256">Call +91 72539 52256</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#top" class="brand"><span class="brand-mk">ॐ</span><span>Om Shree Narayan<small>Yoga & Fitness</small></span></a>
+        <p class="big">Focused on better health, fitness & diet.</p>
+      </div>
+      <div><h5>Explore</h5><ul><li><a href="#about">Studio</a></li><li><a href="#services">Programs</a></li><li><a href="#formats">Sessions</a></li><li><a href="#approach">Approach</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li>Bangalore, Karnataka</li><li><a href="tel:+917253952256">+91 72539 52256</a></li><li><a href="https://wa.me/917253952256" target="_blank">WhatsApp</a></li></ul></div>
+    </div>
+    <div class="bottom"><span>© <span id="y"></span> Om Shree Narayan Yoga & Fitness Studio</span><span>Studio · Home · Online · Group</span></div>
+    <div class="mega">Om Shree Narayan</div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/917253952256?text=Hi%2C%20I%27d%20like%20to%20book%20a%20session." target="_blank" aria-label="WhatsApp">
+  <i><svg viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35zM12.05 21.5a9.4 9.4 0 0 1-4.8-1.32l-.34-.2-3.57.94.95-3.48-.22-.36a9.41 9.41 0 0 1-1.44-5.02c0-5.2 4.23-9.43 9.44-9.43 2.52 0 4.89.98 6.67 2.77a9.37 9.37 0 0 1 2.76 6.67c0 5.2-4.23 9.43-9.44 9.43zm8.03-17.46A11.27 11.27 0 0 0 12.05.72C5.8.72.71 5.8.71 12.06c0 2 .52 3.95 1.52 5.67L.62 23.6l6.01-1.58a11.32 11.32 0 0 0 5.42 1.38c6.25 0 11.34-5.09 11.34-11.34 0-3.03-1.18-5.88-3.32-8.02z"/></svg></i>
+  <span>Book on WhatsApp</span>
+</a>
+
+<script>
+const m=document.getElementById('menu'),l=document.getElementById('links');
+m.onclick=()=>l.classList.toggle('open');
+l.querySelectorAll('a').forEach(a=>a.onclick=()=>l.classList.remove('open'));
+document.querySelectorAll('.item-h').forEach(h=>h.onclick=()=>{
+  const it=h.parentElement,was=it.classList.contains('open');
+  document.querySelectorAll('.item').forEach(i=>i.classList.remove('open'));
+  if(!was)it.classList.add('open');
+});
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.1});
+document.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%4)*80+'ms';io.observe(el)});
+document.getElementById('y').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
